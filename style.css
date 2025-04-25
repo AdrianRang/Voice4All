@@ -1,0 +1,25 @@
+body {
+    background-color: #DA7C02;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    justify-items: center;
+    width: 100%;
+    margin: 0%;
+}
+
+* {
+    color: #393731;
+    font-family: 'Contrail One';
+    text-align: center;
+    font-size: larger;
+    margin: 10px;
+}
+
+select, button {
+    background-color: #D6D5CA;
+}
+
+h1 {
+    font-size: 50pt;
+}
