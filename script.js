@@ -107,10 +107,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (value[0] === 58) {
         for(let i = 1; i < value.length; i++){
           msg += String.fromCharCode(value[i])
-          speech = msg;
-          console.log(msg);
-          speak();
         }
+        speech = msg;
+        console.log(msg);
+        speak();
       } else if(value[0] == 33) {
         for(let i = 1; i < value.length; i++){
           msg += String.fromCharCode(value[i])
