@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.innerHTML = "Edit Values (Beta)"
     button.removeEventListener("click", firstClick);
     button.addEventListener("click", ()=> {
-      window.location.replace("Editor/index.html");
+      window.location.href = "./Editor";
     })
 
     // Listen to data coming from the serial device.
