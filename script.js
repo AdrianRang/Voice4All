@@ -122,8 +122,8 @@ document.addEventListener("DOMContentLoaded", () => {
       let msg = "";
 
       let list = getCookie("values")
-      console.log("list", list)
-      writer.write(encoder.encode("|"+list))
+      // console.log("list", list)
+      writer.write(encoder.encode(list))
       if (value[0] === 58) {
         for(let i = 1; i < value.length; i++){
           msg += String.fromCharCode(value[i])
