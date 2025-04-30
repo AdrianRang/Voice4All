@@ -111,25 +111,24 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.releaseLock();
         break;
       }
-
+      
       try {
         document.getElementById("disconnected").id = "connected"
         document.querySelector("a").innerText = "Connected"
+        let list = getCookie("values")
+        writer.write(encoder.encode(list))
       } catch {}
       // value is a Uint8Array.
-      console.log(value);
+      // console.log(value);
       last = value;
       let msg = "";
 
-      let list = getCookie("values")
-      // console.log("list", list)
-      writer.write(encoder.encode(list))
       if (value[0] === 58) {
         for(let i = 1; i < value.length; i++){
           msg += String.fromCharCode(value[i])
         }
         speech = msg;
-        console.log(msg);
+        // console.log(msg);
         speak();
       } else if(value[0] == 33) {
         for(let i = 1; i < value.length; i++){
