@@ -8,7 +8,7 @@ body {
     margin: 0%;
 }
 
-*:not(a) {
+* {
     color: #393731;
     font-family: 'Contrail One';
     text-align: center;
@@ -43,16 +43,21 @@ button:hover {
     transform: translateY(0.5em);
 }
 
-div#disconnected {
-    width: 10px;
-    height: 10px;
-    border-radius: 100%;
-    background-color: red;
+table {
+    border-collapse: collapse;
+    font-size: medium;
+    margin: 10px;
+    
 }
 
-div#connected {
-    width: 10px;
-    height: 10px;
-    border-radius: 100%;
-    background-color: greenyellow;
+td, th {
+    border: 1px solid #dddddd7b;
+    text-align: left;
+    padding: 8px;
+    width: 50%;
+    /* font-size: medium; */
+}
+
+tr:nth-child(even) {
+    background-color: #dddddd7b;
 }

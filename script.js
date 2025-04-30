@@ -85,12 +85,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  button.addEventListener('click', async () => {
+  button.addEventListener("click", firstClick);
+
+  async function firstClick() {
     let port = await navigator.serial.requestPort()
 
     await port.open({ baudRate: 115200 });
 
+    const encoder = new TextEncoder();
+
     const reader = port.readable.getReader();
+    const writer = port.writable.getWriter();
+
+    button.innerHTML = "Edit Values (Beta)"
+    button.removeEventListener("click", firstClick);
+    button.addEventListener("click", ()=> {
+      window.location.replace("Editor/index.html");
+    })
 
     // Listen to data coming from the serial device.
     while (true) {
@@ -100,10 +111,19 @@ document.addEventListener("DOMContentLoaded", () => {
         reader.releaseLock();
         break;
       }
+
+      try {
+        document.getElementById("disconnected").id = "connected"
+        document.querySelector("a").innerText = "Connected"
+      } catch {}
       // value is a Uint8Array.
       console.log(value);
       last = value;
       let msg = "";
+
+      let list = getCookie("values")
+      console.log("list", list)
+      writer.write(encoder.encode("|"+list))
       if (value[0] === 58) {
         for(let i = 1; i < value.length; i++){
           msg += String.fromCharCode(value[i])
@@ -118,11 +138,25 @@ document.addEventListener("DOMContentLoaded", () => {
         outPreview.innerHTML = msg;
       }
     }
-
-  });
+  }
 
 
   voiceSelect.onchange = function () {
     speak();
   };
 })
+
+function getCookie(cname) {
+  let name = cname + "=";
+  let ca = document.cookie.split(';');
+  for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+          c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+          return c.substring(name.length, c.length);
+      }
+  }
+  return "";
+}  
