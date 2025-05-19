@@ -1,3 +1,9 @@
+let serviceUuid = '0196e5a4-fd2a-721b-89e2-c1b35c90038b';
+let stringCharUuid = '0196e5a5-1a12-740e-adbf-85e61aea0be4';
+let triggerCharUuid = '0196e5a5-51ec-7220-ab24-d619ab2e460d';
+let receiveCharUuid = "0196e67e-7c18-7499-8e81-a8ff2644e8fb";
+let device, server, service, receiveChar;
+
 // Speech synthesis: https://github.com/mdn/dom-examples/blob/main/web-speech-api/speak-easy-synthesis/
 document.addEventListener("DOMContentLoaded", () => {
   const synth = window.speechSynthesis;
@@ -88,55 +94,52 @@ document.addEventListener("DOMContentLoaded", () => {
   button.addEventListener("click", firstClick);
 
   async function firstClick() {
-    let port = await navigator.serial.requestPort()
+    try {
+        device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: [serviceUuid] }]
+        });
+        server = await device.gatt.connect();
+        service = await server.getPrimaryService(serviceUuid);
 
-    await port.open({ baudRate: 115200 });
+        document.getElementById("disconnected").id = "connected"
+        document.querySelector("a").innerText = "Connected"
 
-    const encoder = new TextEncoder();
+        // Subscribe to trigger notifications
+        const triggerChar = await service.getCharacteristic(triggerCharUuid);
+        await triggerChar.startNotifications();
+        triggerChar.addEventListener('characteristicvaluechanged', (event) => {
+          speak();
+          const triggerValue = new Uint8Array(event.target.value.buffer)[0];
+          document.getElementById('triggerValue').innerText = `Trigger Value: ${triggerValue}`;
+        });
 
-    const reader = port.readable.getReader();
-    const writer = port.writable.getWriter();
+        const decoder = new TextDecoder('utf-8');
 
-    button.innerHTML = "Edit Values (Beta)"
+        const stringChar = await service.getCharacteristic(stringCharUuid);
+        await stringChar.startNotifications();
+        stringChar.addEventListener('characteristicvaluechanged', (event) => {
+          document.getElementById('preview').innerText = decoder.decode(stringChar.value);
+          speech = decoder.decode(stringChar.value);
+        })
+
+        receiveChar = await service.getCharacteristic(receiveCharUuid);
+      } catch (error) {
+        console.error('Error connecting to BLE device', error);
+      }
+
+    button.innerHTML = "Edit Values"
     button.removeEventListener("click", firstClick);
     button.addEventListener("click", ()=> {
-      window.location.href = "./Editor";
+      window.open("./Editor")
     })
 
     // Listen to data coming from the serial device.
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) {
-        // Allow the serial port to be closed later.
-        reader.releaseLock();
-        break;
-      }
-      
+    // while (true) {
       try {
-        document.getElementById("disconnected").id = "connected"
-        document.querySelector("a").innerText = "Connected"
         let list = getCookie("values")
-        writer.write(encoder.encode(list))
+        sendList(list);
       } catch {}
-      // value is a Uint8Array.
-      // console.log(value);
-      last = value;
-      let msg = "";
-
-      if (value[0] === 58) {
-        for(let i = 1; i < value.length; i++){
-          msg += String.fromCharCode(value[i])
-        }
-        speech = msg;
-        // console.log(msg);
-        speak();
-      } else if(value[0] == 33) {
-        for(let i = 1; i < value.length; i++){
-          msg += String.fromCharCode(value[i])
-        }
-        outPreview.innerHTML = msg;
-      }
-    }
+    // }
   }
 
 
@@ -159,3 +162,14 @@ function getCookie(cname) {
   }
   return "";
 }  
+
+async function sendList(data) {
+  if (receiveChar) {
+    const data = document.getElementById('dataInput').value;
+    const encoder = new TextEncoder();
+    await receiveChar.writeValue(encoder.encode(data));
+    console.log(`Data sent: ${data}`);
+  } else {
+    console.error('Not connected to ESP32 or characteristic not available');
+  }
+}
