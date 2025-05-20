@@ -133,12 +133,12 @@ document.addEventListener("DOMContentLoaded", () => {
       window.open("./Editor")
     })
 
+    try {
+      let list = getCookie("values")
+      sendList(list);
+    } catch {}
     // Listen to data coming from the serial device.
     // while (true) {
-      try {
-        let list = getCookie("values")
-        sendList(list);
-      } catch {}
     // }
   }
 
@@ -165,7 +165,7 @@ function getCookie(cname) {
 
 async function sendList(data) {
   if (receiveChar) {
-    const data = document.getElementById('dataInput').value;
+    // const data = document.getElementById('dataInput').value;
     const encoder = new TextEncoder();
     await receiveChar.writeValue(encoder.encode(data));
     console.log(`Data sent: ${data}`);
